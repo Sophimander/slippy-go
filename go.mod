@@ -1,4 +1,4 @@
-module github.com/ConstObject/slippy-go
+module github.com/ConstObject/slippy-go v0.0.1
 
 go 1.20
 
