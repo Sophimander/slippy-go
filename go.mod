@@ -1,4 +1,4 @@
-module github.com/ConstObject/slippy-go
+module github.com/Sophimander/slippy-go
 
 go 1.20
 
