@@ -76,11 +76,11 @@ func GetCharacterName(charId int) string {
 	return get_key_from_value(charId, SlippiCharactersId)
 }
 
-func GetCharacterId(name string, dk_clause bool) int {
+func GetCharacterId(name string) int {
 	characterId := SlippiCharactersId[name]
 	return characterId
 }
 
 func GetCharacterUrl(name string) string {
-	return fmt.Sprintf(slippiCharactersUrl, GetCharacterId(name, false))
+	return fmt.Sprintf(slippiCharactersUrl, GetCharacterId(name))
 }
