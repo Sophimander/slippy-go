@@ -5,7 +5,7 @@ import "fmt"
 var slippiCharactersUrl = "https://slippi.gg/images/characters/stock-icon-%v-0.png"
 
 var SlippiCharactersId = map[string]int{
-	"DONKEY_KONG":    0, // Mapped to 255 in database
+	"DONKEY_KONG":    0,
 	"CAPTAIN_FALCON": 1,
 	"FOX":            2,
 	"GAME_AND_WATCH": 3,
@@ -72,21 +72,15 @@ func get_key_from_value(value int, lookup map[string]int) string {
 	return ""
 }
 
-func get_character_name(charId int) string {
-	if charId == 255 {
-		charId = 0
-	}
+func GetCharacterName(charId int) string {
 	return get_key_from_value(charId, SlippiCharactersId)
 }
 
-func get_character_id(name string, dk_clause bool) int {
+func GetCharacterId(name string, dk_clause bool) int {
 	characterId := SlippiCharactersId[name]
-	if dk_clause && characterId == 0 {
-		return 255
-	}
 	return characterId
 }
 
-func get_character_url(name string) string {
-	return fmt.Sprintf(slippiCharactersUrl, get_character_id(name, false))
+func GetCharacterUrl(name string) string {
+	return fmt.Sprintf(slippiCharactersUrl, GetCharacterId(name, false))
 }
