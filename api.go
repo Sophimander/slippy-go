@@ -11,6 +11,22 @@ import (
 
 var slippiEndpoint string = "https://gql-gateway-dot-slippi.uc.r.appspot.com/graphql"
 var slippiQuery string = `
+fragment profileFieldsV2 on NetplayProfileV2 {
+	id
+	ratingOrdinal
+	ratingUpdateCount
+	wins
+	losses
+	dailyGlobalPlacement
+	dailyRegionalPlacement
+	continent
+	characters {
+	character
+	gameCount
+	__typename
+	}
+}
+
 query ($cc: String!) {
     getConnectCode(code: $cc){
         user {
@@ -26,21 +42,20 @@ query ($cc: String!) {
                 __typename
             }
             rankedNetplayProfile {
-                id
-                ratingOrdinal
-                ratingUpdateCount
-                wins
-                losses
-                dailyGlobalPlacement
-                dailyRegionalPlacement
-                continent
-                characters {
-                    character
-                    gameCount
-                    __typename
-                }
+				...profileFieldsV2
                 __typename
             }
+			rankedNetplayProfileHistory {
+				...profileFieldsV2
+				season {
+					id
+					startedAt
+					endedAt
+					name
+					status
+				}
+				__typename
+			}
             __typename
         }
     }
@@ -89,11 +104,7 @@ func (sc *SlippiClient) Run(code string) (User, error) {
 		sc.logf("Error: %v", err)
 		return User{}, err
 	}
-	var user, err2 = convertUser(&resp.ConnectCode.User)
-	if err2 != nil {
-		return User{}, err2
-	}
-	return user, nil
+	return resp.ConnectCode.User, nil
 }
 
 type slippiResponse struct {
@@ -101,16 +112,17 @@ type slippiResponse struct {
 }
 
 type getConnectCode struct {
-	User sUser `json:"user"`
+	User User `json:"user"`
 }
 
 type User struct {
-	Uid              string               `json:"fbUid"`
-	DisplayName      string               `json:"displayName"`
-	ConnectCode      ConnectCode          `json:"connectCode"`
-	Status           string               `json:"status"`
-	SubscriptionInfo SubscriptionInfo     `json:"activeSubscription"`
-	RankedProfile    RankedNetplayProfile `json:"rankedNetplayProfile"`
+	Uid              string                        `json:"fbUid"`
+	DisplayName      string                        `json:"displayName"`
+	ConnectCode      ConnectCode                   `json:"connectCode"`
+	Status           string                        `json:"status"`
+	SubscriptionInfo SubscriptionInfo              `json:"activeSubscription"`
+	RankedProfile    RankedNetplayProfile          `json:"rankedNetplayProfile"`
+	RankedHistory    []RankedNetplayProfileHistory `json:"rankedNetplayProfileHistory"`
 }
 
 type RankedNetplayProfile struct {
@@ -130,13 +142,25 @@ type Character struct {
 	GameCount int    `json:"gameCount"`
 }
 
-type sUser struct {
-	Uid              string                `json:"fbUid"`
-	DisplayName      string                `json:"displayName"`
-	ConnectCode      ConnectCode           `json:"connectCode"`
-	Status           string                `json:"status"`
-	SubscriptionInfo SubscriptionInfo      `json:"activeSubscription"`
-	RankedProfile    sRankedNetplayProfile `json:"rankedNetplayProfile"`
+type Season struct {
+	Id        string `json:"id"`
+	StartedAt string `json:"startedAt"`
+	EndedAt   string `json:"endedAt"`
+	Name      string `json:"name"`
+	Status    string `json:"status"`
+}
+
+type RankedNetplayProfileHistory struct {
+	Id                     string      `json:"id"`
+	Rating                 float64     `json:"ratingOrdinal"`
+	RatingUpdateCount      int         `json:"ratingUpdateCount"`
+	Wins                   int         `json:"wins"`
+	Losses                 int         `json:"losses"`
+	DailyGlobalPlacement   int         `json:"dailyGlobalPlacement"`
+	DailyRegionalPlacement int         `json:"dailyRegionalPlacement"`
+	Continent              string      `json:"continent"`
+	Characters             []Character `json:"characters"`
+	Seasons                Season      `json:"season"`
 }
 
 type ConnectCode struct {
@@ -146,70 +170,6 @@ type ConnectCode struct {
 type SubscriptionInfo struct {
 	Level  string `json:"level"`
 	Gifted bool   `json:"hasGiftSub"`
-}
-
-type sRankedNetplayProfile struct {
-	Id                     string       `json:"id"`
-	Rating                 float64      `json:"ratingOrdinal"`
-	RatingUpdateCount      int          `json:"ratingUpdateCount"`
-	Wins                   int          `json:"wins"`
-	Losses                 int          `json:"losses"`
-	DailyGlobalPlacement   int          `json:"dailyGlobalPlacement"`
-	DailyRegionalPlacement int          `json:"dailyRegionalPlacement"`
-	Continent              string       `json:"continent"`
-	Characters             []sCharacter `json:"characters"`
-}
-
-type sCharacter struct {
-	Name      string `json:"character"`
-	GameCount int    `json:"gameCount"`
-}
-
-func convertCharacter(sc *sCharacter) (Character, error) {
-	char := Character{
-		Name:      sc.Name,
-		GameCount: sc.GameCount,
-	}
-	return char, nil
-}
-
-func convertRankedProfile(rp *sRankedNetplayProfile) (RankedNetplayProfile, error) {
-	var Characters []Character
-	for _, vchar := range rp.Characters {
-		oldChar, err := convertCharacter(&vchar)
-		if err != nil {
-			return RankedNetplayProfile{}, err
-		}
-		Characters = append(Characters, oldChar)
-	}
-	var rankedProfile = RankedNetplayProfile{
-		Id:                     rp.Id,
-		Rating:                 rp.Rating,
-		RatingUpdateCount:      rp.RatingUpdateCount,
-		Wins:                   rp.Wins,
-		Losses:                 rp.Losses,
-		DailyGlobalPlacement:   rp.DailyGlobalPlacement,
-		DailyRegionalPlacement: rp.DailyRegionalPlacement,
-		Continent:              rp.Continent,
-		Characters:             Characters,
-	}
-	return rankedProfile, nil
-}
-
-func convertUser(su *sUser) (User, error) {
-	rankedProfile, err := convertRankedProfile(&su.RankedProfile)
-	if err != nil {
-		return User{}, err
-	}
-	var user = User{
-		Uid:              su.Uid,
-		DisplayName:      su.DisplayName,
-		ConnectCode:      su.ConnectCode,
-		Status:           su.Status,
-		SubscriptionInfo: su.SubscriptionInfo,
-		RankedProfile:    rankedProfile,
-	}
-	return user, nil
 }
 
 func validConnectCode(code string) bool {
