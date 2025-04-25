@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/machinebox/graphql"
@@ -115,7 +114,7 @@ type User struct {
 }
 
 type RankedNetplayProfile struct {
-	Id                     int         `json:"id"`
+	Id                     string      `json:"id"`
 	Rating                 float64     `json:"ratingOrdinal"`
 	RatingUpdateCount      int         `json:"ratingUpdateCount"`
 	Wins                   int         `json:"wins"`
@@ -183,12 +182,8 @@ func convertRankedProfile(rp *sRankedNetplayProfile) (RankedNetplayProfile, erro
 		}
 		Characters = append(Characters, oldChar)
 	}
-	newId, err := strconv.ParseInt(rp.Id, 0, 64)
-	if err != nil {
-		return RankedNetplayProfile{}, err
-	}
 	var rankedProfile = RankedNetplayProfile{
-		Id:                     int(newId),
+		Id:                     rp.Id,
 		Rating:                 rp.Rating,
 		RatingUpdateCount:      rp.RatingUpdateCount,
 		Wins:                   rp.Wins,
