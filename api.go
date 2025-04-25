@@ -220,7 +220,3 @@ func validConnectCode(code string) bool {
 	pattern := regexp.MustCompile("^[a-zA-Z]{1,7}#[0-9]{1,7}$")
 	return pattern.Match([]byte(code))
 }
-
-func main() {
-	fmt.Println("hi")
-}
