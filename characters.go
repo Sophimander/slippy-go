@@ -5,8 +5,8 @@ import "fmt"
 var slippiCharactersUrl = "https://slippi.gg/images/characters/stock-icon-%v-0.png"
 
 var SlippiCharactersId = map[string]int{
-	"DONKEY_KONG":    0,
-	"CAPTAIN_FALCON": 1,
+	"CAPTAIN_FALCON": 0,
+	"DONKEY_KONG":    1,
 	"FOX":            2,
 	"GAME_AND_WATCH": 3,
 	"KIRBY":          4,
@@ -35,8 +35,8 @@ var SlippiCharactersId = map[string]int{
 }
 
 var SlippiCharacterColors = map[string]string{
-	"DONKEY_KONG":    "#2f1003",
 	"CAPTAIN_FALCON": "#c51620",
+	"DONKEY_KONG":    "#2f1003",
 	"FOX":            "#ffb242",
 	"GAME_AND_WATCH": "#000000",
 	"KIRBY":          "#ffbed8",
