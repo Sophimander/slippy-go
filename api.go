@@ -127,7 +127,6 @@ type RankedNetplayProfile struct {
 }
 
 type Character struct {
-	Id        int    `json:"id"`
 	Name      string `json:"character"`
 	GameCount int    `json:"gameCount"`
 }
@@ -163,18 +162,12 @@ type sRankedNetplayProfile struct {
 }
 
 type sCharacter struct {
-	Id        string `json:"id"`
 	Name      string `json:"character"`
 	GameCount int    `json:"gameCount"`
 }
 
 func convertCharacter(sc *sCharacter) (Character, error) {
-	newId, err := strconv.ParseInt(sc.Id, 0, 64)
-	if err != nil {
-		return Character{}, err
-	}
 	char := Character{
-		Id:        int(newId),
 		Name:      sc.Name,
 		GameCount: sc.GameCount,
 	}
