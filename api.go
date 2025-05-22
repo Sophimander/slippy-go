@@ -14,7 +14,6 @@ var slippiQuery string = `
 query UserProfilePageQuery($cc: String, $uid: String) {
   getUser(connectCode: $cc, fbUid: $uid) {
     ...userProfilePage
-    __typename
   }
 }
 
@@ -23,17 +22,14 @@ fragment userProfilePage on User {
   displayName
   connectCode {
     code
-    __typename
   }
   status
   activeSubscription {
     level
     hasGiftSub
-    __typename
   }
   rankedNetplayProfile {
     ...profileFields
-    __typename
   }
   rankedNetplayProfileHistory {
     ...profileFields
@@ -43,11 +39,8 @@ fragment userProfilePage on User {
       endedAt
       name
       status
-      __typename
     }
-    __typename
   }
-  __typename
 }
 
 fragment profileFields on NetplayProfile {
@@ -62,9 +55,7 @@ fragment profileFields on NetplayProfile {
   characters {
     character
     gameCount
-    __typename
   }
-  __typename
 }
 `
 
