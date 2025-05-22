@@ -9,57 +9,64 @@ import (
 	"github.com/machinebox/graphql"
 )
 
-var slippiEndpoint string = "https://gql-gateway-dot-slippi.uc.r.appspot.com/graphql"
+var slippiEndpoint string = "https://internal.slippi.gg"
 var slippiQuery string = `
-fragment profileFieldsV2 on NetplayProfileV2 {
-	id
-	ratingOrdinal
-	ratingUpdateCount
-	wins
-	losses
-	dailyGlobalPlacement
-	dailyRegionalPlacement
-	continent
-	characters {
-	character
-	gameCount
-	__typename
-	}
+query UserProfilePageQuery($cc: String, $uid: String) {
+  getUser(connectCode: $cc, fbUid: $uid) {
+    ...userProfilePage
+    __typename
+  }
 }
 
-query ($cc: String!) {
-    getConnectCode(code: $cc){
-        user {
-            fbUid
-            displayName
-            status
-            connectCode {
-                code
-            }
-            activeSubscription {
-                level
-                hasGiftSub
-                __typename
-            }
-            rankedNetplayProfile {
-				...profileFieldsV2
-                __typename
-            }
-			rankedNetplayProfileHistory {
-				...profileFieldsV2
-				season {
-					id
-					startedAt
-					endedAt
-					name
-					status
-				}
-				__typename
-			}
-            __typename
-        }
+fragment userProfilePage on User {
+  fbUid
+  displayName
+  connectCode {
+    code
+    __typename
+  }
+  status
+  activeSubscription {
+    level
+    hasGiftSub
+    __typename
+  }
+  rankedNetplayProfile {
+    ...profileFields
+    __typename
+  }
+  rankedNetplayProfileHistory {
+    ...profileFields
+    season {
+      id
+      startedAt
+      endedAt
+      name
+      status
+      __typename
     }
-}`
+    __typename
+  }
+  __typename
+}
+
+fragment profileFields on NetplayProfile {
+  id
+  ratingOrdinal
+  ratingUpdateCount
+  wins
+  losses
+  dailyGlobalPlacement
+  dailyRegionalPlacement
+  continent
+  characters {
+    character
+    gameCount
+    __typename
+  }
+  __typename
+}
+`
 
 type SlippiClient struct {
 	graphqlClient *graphql.Client
@@ -90,15 +97,11 @@ func (sc *SlippiClient) Run(code string) (User, error) {
 		sc.logf("Error: %v", err)
 		return User{}, err
 	}
-	return resp.ConnectCode.User, nil
+	return resp.User, nil
 }
 
 type slippiResponse struct {
-	ConnectCode getConnectCode `json:"getConnectCode"`
-}
-
-type getConnectCode struct {
-	User User `json:"user"`
+	User User `json:"getUser"`
 }
 
 type User struct {
