@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var TimeData = []string{
+var TestData = []string{
 	"MORS#762",
 	"XATU#0",
 	"RON#404",
@@ -23,7 +23,7 @@ func TestMain(t *testing.T) {
 	fmt.Println("Main Test")
 
 	client := NewClient()
-	for _, cc := range TimeData {
+	for _, cc := range TestData {
 		sUser, err := client.Run(cc)
 		if err != nil {
 			t.Error(err)
