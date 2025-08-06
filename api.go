@@ -78,6 +78,9 @@ func (sc *SlippiClient) logf(format string, args ...any) {
 
 func (sc *SlippiClient) Run(code string) (User, error) {
 	sc.logf("Run(%v)", code)
+	if !validConnectCode(code) {
+		return User{}, fmt.Errorf("Invalid connect code")
+	}
 	code = strings.ToUpper(code)
 	req := graphql.NewRequest(slippiQuery)
 	req.Var("cc", code)
