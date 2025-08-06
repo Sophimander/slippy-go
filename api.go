@@ -72,7 +72,7 @@ func NewClient() *SlippiClient {
 	return sc
 }
 
-func (sc *SlippiClient) logf(format string, args ...interface{}) {
+func (sc *SlippiClient) logf(format string, args ...any) {
 	sc.Log(fmt.Sprintf(format, args...))
 }
 
